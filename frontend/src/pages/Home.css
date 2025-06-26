@@ -1,0 +1,43 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: radial-gradient(ellipse at center, #e0e7ff, #c7d2fe);
+}
+
+.home-box {
+  background-color: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+
+.home-box h1 {
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.home-box p {
+  margin-bottom: 30px;
+  font-size: 16px;
+  color: #4b5563;
+}
+
+.home-box button {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.home-box button:hover {
+  background-color: #2563eb;
+}
