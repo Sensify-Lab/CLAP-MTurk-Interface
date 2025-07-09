@@ -1,19 +1,21 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from database import Base
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy.orm import declarative_base
+from datetime import datetime
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(String, primary_key=True)
-    password = Column(String)
+Base = declarative_base()
 
 class SurveyProgress(Base):
     __tablename__ = "progress"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(String, primary_key=True)
+    completed_songs = Column(String)  # Comma-separated song filenames
+
+class SurveyResponse(Base):
+    __tablename__ = "responses"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String)
     song_id = Column(String)
-    song_file = Column(String)
-    rank1 = Column(String)
-    rank2 = Column(String)
-    rank3 = Column(String)
-    chosen_desc = Column(String)
-    complete = Column(Boolean, default=False)
+    feature1 = Column(String)
+    feature2 = Column(String)
+    feature3 = Column(String)
+    description = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
