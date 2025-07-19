@@ -1,102 +1,177 @@
+body {
+  background-color: #dbe4f3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
 .survey-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2rem;
+  background-color: #dbe4f3;
   min-height: 100vh;
-  background: radial-gradient(circle, #e0eaff, #d3d3d3);
-  padding: 20px;
 }
 
 .survey-box {
-  background: white;
-  padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
-  max-width: 700px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 2rem 2.5rem;
   width: 100%;
-}
-
-.survey-box h2,
-.survey-box h3 {
-  margin-bottom: 15px;
+  max-width: 700px;
   text-align: center;
 }
 
-.survey-field {
-  margin-bottom: 15px;
+h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
 }
 
-.survey-field label {
-  display: block;
-  margin-bottom: 5px;
+h3 {
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+label {
   font-weight: 500;
-}
-
-.survey-field select {
-  width: 100%;
-  padding: 8px;
-  font-size: 1rem;
-}
-
-.features-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.feature-option {
-  background: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  flex: 1 1 30%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.2s, border 0.2s;
-}
-
-.feature-option.selected {
-  background: #d0f0d0;
-  border-color: #4caf50;
+  margin-right: 0.5rem;
 }
 
 textarea {
   width: 100%;
-  padding: 10px;
+  padding: 0.75rem;
   font-size: 1rem;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
+  margin-top: 0.5rem;
   border-radius: 8px;
+  border: 1px solid #ccc;
   resize: vertical;
+  background-color: #fefefe;
+}
+
+.feature-row {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 80%;
+  max-width: 300px;
+  background-color: #fefefe;
+}
+
+.scale-input {
+  margin: 1rem 0;
+}
+
+.scale-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.scale-row label {
+  text-align: center;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.scale-row input[type="radio"] {
+  accent-color: #3498db;
+  transform: scale(1.1);
+  margin-right: 0.25rem;
+}
+
+.description-block {
+  margin-top: 1.5rem;
+  background: #f4f6f8;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: left;
 }
 
 .wait-msg {
-  margin-top: 10px;
-  color: #555;
   font-style: italic;
+  color: #555;
+  margin-top: 1rem;
   text-align: center;
 }
 
 button {
-  width: 100%;
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.2s ease;
 }
 
-button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
+.next-button {
+  background-color: #3498db;
+  color: #fff;
 }
 
-button:hover:enabled {
-  background-color: #0056b3;
+.next-button:hover {
+  background-color: #2980b9;
+}
+
+.submit-button {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.submit-button:hover {
+  background-color: #219150;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.back-button {
+  background-color: #ddd;
+  color: #333;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #ccc;
+}
+
+.description-block h3 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.scale-input > span {
+  display: block;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.description-text {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.6); /* soft white overlay */
+  padding: 0.75rem 1rem;
+  margin: 0.5rem auto 1rem auto;
+  border-radius: 10px;
+  width: fit-content;
+  max-width: 90%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }

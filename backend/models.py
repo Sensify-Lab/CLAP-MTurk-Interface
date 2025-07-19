@@ -1,13 +1,15 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.orm import declarative_base
 from datetime import datetime
 
 Base = declarative_base()
 
+
 class SurveyProgress(Base):
     __tablename__ = "progress"
     user_id = Column(String, primary_key=True)
     completed_songs = Column(String)  # Comma-separated song filenames
+
 
 class SurveyResponse(Base):
     __tablename__ = "responses"
@@ -17,5 +19,7 @@ class SurveyResponse(Base):
     feature1 = Column(String)
     feature2 = Column(String)
     feature3 = Column(String)
-    description = Column(String)
+    user_description = Column(String)
+    gemini_rating = Column(Integer)
+    chatgpt_rating = Column(Integer)
     timestamp = Column(DateTime, default=datetime.utcnow)
