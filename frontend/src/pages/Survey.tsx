@@ -5,12 +5,18 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import './Survey.css';
 
-const ALL_FEATURES = [
-  "Soothing", "Stimulating", "Grounding", "Playful", "Focusing", "Transitional", "Interactive",
-  "Motivating", "Anxiety-Reducing", "Task-Oriented", "Self Expressive", "Sensory-Calming",
-  "Attention-Shifting", "Rhythmic Synchronizing", "Confidence-Building"
-];
+const FEATURE_DESCRIPTIONS: { [key: string]: string } = {
+  "Stimulating": "A lively, energetic track with strong rhythm and upbeat tempo to boost movement and attention.",
+  "Playful": "A whimsical, bouncy track with light percussion and bright tones to encourage joyful exploration.",
+  "Soothing": "A calm, gentle track with soft melodies and slow tempo for relaxation and emotional regulation.",
+  "Sensory-Calming": "A track with ambient textures and minimal melodic content designed to reduce sensory overload.",
+  "Grounding": "A steady, repetitive musical base that promotes sensory stability and emotional anchoring.",
+  "Focusing": "A structured, predictable track with consistent rhythm to support sustained attention and task engagement.",
+  "Transitional": "A cue-based musical track used to signal transitions between activities or routines.",
+  "Anxiety-Reduction": "A soft, harmonically stable track specifically designed to ease agitation or anxious behaviors.",
+};
 
+const ALL_FEATURES = Object.keys(FEATURE_DESCRIPTIONS);
 let lastAllowedTime = 0;
 
 const Survey = () => {
@@ -20,14 +26,14 @@ const Survey = () => {
   const [song, setSong] = useState<SongData | null>(null);
   const [rankedFeatures, setRankedFeatures] = useState<string[]>(['', '', '']);
   const [description, setDescription] = useState('');
-  const [geminiRating, setGeminiRating] = useState('');
   const [gptRating, setGptRating] = useState('');
   const [audioEnded, setAudioEnded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [complete, setComplete] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showDescriptions, setShowDescriptions] = useState(false);
-  const [descriptions, setDescriptions] = useState({ gemini: '', gpt: '' });
+  const [descriptions, setDescriptions] = useState({ gpt: '' });
+  const [showFeatureInfo, setShowFeatureInfo] = useState(false);
 
   useEffect(() => {
     if (paramId) {
@@ -52,14 +58,10 @@ const Survey = () => {
       }
 
       setSong(res.data);
-      setDescriptions({
-        gemini: res.data.gemini_description,
-        gpt: res.data.chatgpt_description,
-      });
+      setDescriptions({ gpt: res.data.chatgpt_description });
 
       setRankedFeatures(['', '', '']);
       setDescription('');
-      setGeminiRating('');
       setGptRating('');
       lastAllowedTime = 0;
     } catch (error) {
@@ -91,8 +93,8 @@ const Survey = () => {
       return;
     }
 
-    const uniqueFeatures = new Set(rankedFeatures);
-    if (uniqueFeatures.size < 3) {
+    const unique = new Set(rankedFeatures);
+    if (unique.size < 3) {
       alert('Each feature ranking must be unique.');
       return;
     }
@@ -101,8 +103,8 @@ const Survey = () => {
   };
 
   const handleSubmit = async () => {
-    if (!geminiRating || !gptRating) {
-      alert('Please rate both descriptions.');
+    if (!gptRating) {
+      alert('Please rate the description.');
       return;
     }
 
@@ -111,7 +113,6 @@ const Survey = () => {
     form.append('song_id', song.song_id);
     rankedFeatures.forEach((f, i) => form.append(`feature${i + 1}`, f));
     form.append('user_description', description.trim());
-    form.append('gemini_rating', geminiRating);
     form.append('chatgpt_rating', gptRating);
 
     setSubmitting(true);
@@ -135,7 +136,6 @@ const Survey = () => {
           onEnded={() => setAudioEnded(true)}
           controlsList="nodownload noplaybackrate"
           preload="auto"
-          /*
           onTimeUpdate={(e) => {
             const audio = e.currentTarget;
             if (audio.currentTime > lastAllowedTime + 0.35) {
@@ -144,7 +144,6 @@ const Survey = () => {
               lastAllowedTime = audio.currentTime;
             }
           }}
-            */
         />
 
         {!audioEnded && <p className="wait-msg">⏳ Please listen to the full song before continuing.</p>}
@@ -152,6 +151,18 @@ const Survey = () => {
         {audioEnded && !showDescriptions && (
           <>
             <h3>Rank the Top 3 Most Relevant Features</h3>
+            <button className="info-toggle" onClick={() => setShowFeatureInfo(!showFeatureInfo)}>
+              {showFeatureInfo ? 'Hide Feature Descriptions' : 'Show Feature Descriptions'}
+            </button>
+
+            <div className={`feature-info-box ${showFeatureInfo ? 'open' : ''}`}>
+              {ALL_FEATURES.map((f) => (
+                <div key={f} className="feature-info">
+                  <strong>{f}:</strong> {FEATURE_DESCRIPTIONS[f]}
+                </div>
+              ))}
+            </div>
+
             {[0, 1, 2].map((i) => (
               <div className="feature-row" key={i}>
                 <label>Rank {i + 1}:</label>
@@ -168,6 +179,7 @@ const Survey = () => {
             ))}
 
             <h3>Describe the Song</h3>
+            <p>Give a 1-2 sentence description of the song based off of your selected features.</p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -182,46 +194,25 @@ const Survey = () => {
         {showDescriptions && (
           <>
             <div className="description-block">
-              <h3>Gemini Description:</h3>
-              <p className="description-text">{descriptions.gemini}</p>
-              <div className="scale-input">
-                <span>How much do you agree with it?</span>
-                <div className="scale-row">
-                  {[-2, -1, 0, 1, 2].map((num) => (
-                    <label key={`gemini-${num}`}>
-                      <input
-                        type="radio"
-                        name="gemini"
-                        value={num}
-                        checked={geminiRating === num.toString()}
-                        onChange={(e) => setGeminiRating(e.target.value)}
-                      />
-                      {num}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="description-block">
               <h3>ChatGPT Description:</h3>
               <p className="description-text">{descriptions.gpt}</p>
               <div className="scale-input">
                 <span>How much do you agree with it?</span>
-                <div className="scale-row">
-                  {[-2, -1, 0, 1, 2].map((num) => (
-                    <label key={`gpt-${num}`}>
-                      <input
-                        type="radio"
-                        name="gpt"
-                        value={num}
-                        checked={gptRating === num.toString()}
-                        onChange={(e) => setGptRating(e.target.value)}
-                      />
-                      {num}
-                    </label>
-                  ))}
-                </div>
+                <div className="scale-row scale-centered">
+  {[[-2, "Strongly Disagree"], [-1, "Disagree"], [0, "Neutral"], [1, "Agree"], [2, "Strongly Agree"]].map(([val, label]) => (
+    <div key={`gpt-${val}`} className="scale-option">
+      <div className="scale-label">{label}</div>
+      <input
+        type="radio"
+        name="gpt"
+        value={val}
+        checked={gptRating === val.toString()}
+        onChange={(e) => setGptRating(e.target.value)}
+      />
+    </div>
+  ))}
+</div>
+
               </div>
             </div>
 

@@ -8,7 +8,6 @@ from database import SessionLocal
 
 AUDIO_DIR = "static/audio"
 CSV_DIR = "static/CSVs"
-GEMINI_FILE = os.path.join(CSV_DIR, "gemini.csv")
 CHATGPT_FILE = os.path.join(CSV_DIR, "chatgpt.csv")
 
 descriptions_cache = {}
@@ -39,14 +38,7 @@ def load_descriptions():
     if descriptions_cache:
         return descriptions_cache
 
-    gemini_map = {}
     chatgpt_map = {}
-
-    if os.path.exists(GEMINI_FILE):
-        with open(GEMINI_FILE, newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                gemini_map[row['file_name']] = row['description']
 
     if os.path.exists(CHATGPT_FILE):
         with open(CHATGPT_FILE, newline='', encoding='utf-8') as f:
@@ -54,7 +46,6 @@ def load_descriptions():
             for row in reader:
                 chatgpt_map[row['file_name']] = row['description']
 
-    descriptions_cache['gemini'] = gemini_map
     descriptions_cache['chatgpt'] = chatgpt_map
     return descriptions_cache
 
@@ -92,13 +83,11 @@ def next_song(user_id: str, db: Session = Depends(get_db)):
 
     chosen = random.choice(available)
     descriptions = load_descriptions()
-    gemini_desc = descriptions['gemini'].get(chosen, "")
     chatgpt_desc = descriptions['chatgpt'].get(chosen, "")
 
     return {
         "song_id": chosen,
         "song_file": chosen,
-        "gemini_description": gemini_desc,
         "chatgpt_description": chatgpt_desc,
         "complete": False
     }
@@ -111,7 +100,6 @@ def submit(
     feature2: str = Form(...),
     feature3: str = Form(...),
     user_description: str = Form(...),
-    gemini_rating: int = Form(...),
     chatgpt_rating: int = Form(...),
     db: Session = Depends(get_db)
 ):
@@ -122,7 +110,6 @@ def submit(
         feature2=feature2,
         feature3=feature3,
         user_description=user_description,
-        gemini_rating=gemini_rating,
         chatgpt_rating=chatgpt_rating
     )
     db.add(response)

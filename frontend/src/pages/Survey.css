@@ -22,6 +22,7 @@ body {
   width: 100%;
   max-width: 700px;
   text-align: center;
+  transition: all 0.3s ease;
 }
 
 h2 {
@@ -68,6 +69,41 @@ select {
   background-color: #fefefe;
 }
 
+.info-toggle {
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.info-toggle:hover {
+  background-color: #732d91;
+}
+
+.feature-info-box {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease;
+  margin-top: 0.5rem;
+  background-color: #f8f8fb;
+  border-radius: 10px;
+  padding: 0 1rem;
+  text-align: left;
+}
+
+.feature-info-box.open {
+  max-height: 400px;
+  padding: 1rem;
+}
+
+.feature-info {
+  margin-bottom: 0.5rem;
+}
+
 .scale-input {
   margin: 1rem 0;
 }
@@ -96,7 +132,18 @@ select {
   background: #f4f6f8;
   padding: 1rem;
   border-radius: 12px;
-  text-align: left;
+  text-align: center;
+}
+
+.description-text {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 0.75rem 1rem;
+  margin: 0.5rem auto 1rem auto;
+  border-radius: 10px;
+  width: fit-content;
+  max-width: 90%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .wait-msg {
@@ -143,11 +190,6 @@ button {
 .back-button {
   background-color: #ddd;
   color: #333;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .back-button:hover {
@@ -155,7 +197,6 @@ button {
 }
 
 .description-block h3 {
-  text-align: center;
   margin-bottom: 0.5rem;
 }
 
@@ -165,13 +206,24 @@ button {
   margin-bottom: 0.5rem;
 }
 
-.description-text {
+.scale-centered {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.scale-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.scale-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
   text-align: center;
-  background-color: rgba(255, 255, 255, 0.6); /* soft white overlay */
-  padding: 0.75rem 1rem;
-  margin: 0.5rem auto 1rem auto;
-  border-radius: 10px;
-  width: fit-content;
-  max-width: 90%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 80px;
 }

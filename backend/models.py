@@ -20,6 +20,5 @@ class SurveyResponse(Base):
     feature2 = Column(String)
     feature3 = Column(String)
     user_description = Column(String)
-    gemini_rating = Column(Integer)
     chatgpt_rating = Column(Integer)
     timestamp = Column(DateTime, default=datetime.utcnow)
