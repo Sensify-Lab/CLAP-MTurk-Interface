@@ -22,7 +22,11 @@ let lastAllowedTime = 0;
 const Survey = () => {
   const [searchParams] = useSearchParams();
   const paramId = searchParams.get('id');
-  const [userId, setUserId] = useState(localStorage.getItem('userId') || paramId || '');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [validated, setValidated] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   const [song, setSong] = useState<SongData | null>(null);
   const [rankedFeatures, setRankedFeatures] = useState<string[]>(['', '', '']);
   const [description, setDescription] = useState('');
@@ -36,13 +40,33 @@ const Survey = () => {
   const [showFeatureInfo, setShowFeatureInfo] = useState(false);
 
   useEffect(() => {
-    if (paramId) {
-      localStorage.setItem('userId', paramId);
-      setUserId(paramId);
-    }
+    const verifyId = async () => {
+      const incomingId = paramId || localStorage.getItem('userId');
+      if (!incomingId) {
+        setCheckingAuth(false);
+        return;
+      }
+
+      try {
+        const form = new FormData();
+        form.append('user_id', incomingId);
+        await axios.post('http://localhost:8000/login', form);
+        setUserId(incomingId);
+        localStorage.setItem('userId', incomingId);
+        setValidated(true);
+      } catch {
+        setUnauthorized(true);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    verifyId();
   }, [paramId]);
 
   const fetchNext = useCallback(async () => {
+    if (!userId) return;
+
     setLoading(true);
     setAudioEnded(false);
     setShowDescriptions(false);
@@ -73,9 +97,11 @@ const Survey = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (userId) fetchNext();
-  }, [fetchNext, userId]);
+    if (validated) fetchNext();
+  }, [validated, fetchNext]);
 
+  if (checkingAuth) return <LoadingSpinner />;
+  if (unauthorized) return <Navigate to="/denied" replace />;
   if (!userId) return <Navigate to="/auth" replace />;
   if (loading) return <LoadingSpinner />;
   if (complete) return <h2 className="survey-container">✅ Session Complete! Thank you.</h2>;
@@ -109,7 +135,7 @@ const Survey = () => {
     }
 
     const form = new FormData();
-    form.append('user_id', userId);
+    form.append('user_id', userId!);
     form.append('song_id', song.song_id);
     rankedFeatures.forEach((f, i) => form.append(`feature${i + 1}`, f));
     form.append('user_description', description.trim());
@@ -145,16 +171,13 @@ const Survey = () => {
             }
           }}
         />
-
         {!audioEnded && <p className="wait-msg">⏳ Please listen to the full song before continuing.</p>}
-
         {audioEnded && !showDescriptions && (
           <>
             <h3>Rank the Top 3 Most Relevant Features</h3>
             <button className="info-toggle" onClick={() => setShowFeatureInfo(!showFeatureInfo)}>
               {showFeatureInfo ? 'Hide Feature Descriptions' : 'Show Feature Descriptions'}
             </button>
-
             <div className={`feature-info-box ${showFeatureInfo ? 'open' : ''}`}>
               {ALL_FEATURES.map((f) => (
                 <div key={f} className="feature-info">
@@ -162,14 +185,10 @@ const Survey = () => {
                 </div>
               ))}
             </div>
-
             {[0, 1, 2].map((i) => (
               <div className="feature-row" key={i}>
                 <label>Rank {i + 1}:</label>
-                <select
-                  value={rankedFeatures[i]}
-                  onChange={(e) => handleFeatureChange(i, e.target.value)}
-                >
+                <select value={rankedFeatures[i]} onChange={(e) => handleFeatureChange(i, e.target.value)}>
                   <option value="">-- Select a feature --</option>
                   {ALL_FEATURES.map((f) => (
                     <option key={f} value={f}>{f}</option>
@@ -177,7 +196,6 @@ const Survey = () => {
                 </select>
               </div>
             ))}
-
             <h3>Describe the Song</h3>
             <p>Give a 1-2 sentence description of the song based off of your selected features.</p>
             <textarea
@@ -186,11 +204,9 @@ const Survey = () => {
               placeholder="Write your own description here..."
               rows={4}
             />
-
             <button className="next-button" onClick={handleNext}>Next</button>
           </>
         )}
-
         {showDescriptions && (
           <>
             <div className="description-block">
@@ -199,36 +215,24 @@ const Survey = () => {
               <div className="scale-input">
                 <span>How much do you agree with it?</span>
                 <div className="scale-row scale-centered">
-  {[[-2, "Strongly Disagree"], [-1, "Disagree"], [0, "Neutral"], [1, "Agree"], [2, "Strongly Agree"]].map(([val, label]) => (
-    <div key={`gpt-${val}`} className="scale-option">
-      <div className="scale-label">{label}</div>
-      <input
-        type="radio"
-        name="gpt"
-        value={val}
-        checked={gptRating === val.toString()}
-        onChange={(e) => setGptRating(e.target.value)}
-      />
-    </div>
-  ))}
-</div>
-
+                  {[[-2, "Strongly Disagree"], [-1, "Disagree"], [0, "Neutral"], [1, "Agree"], [2, "Strongly Agree"]].map(([val, label]) => (
+                    <div key={`gpt-${val}`} className="scale-option">
+                      <div className="scale-label">{label}</div>
+                      <input
+                        type="radio"
+                        name="gpt"
+                        value={val}
+                        checked={gptRating === val.toString()}
+                        onChange={(e) => setGptRating(e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-
             <div className="button-row">
-              <button
-                className="back-button"
-                onClick={() => setShowDescriptions(false)}
-                disabled={submitting}
-              >
-                Back
-              </button>
-              <button
-                className="submit-button"
-                onClick={handleSubmit}
-                disabled={submitting}
-              >
+              <button className="back-button" onClick={() => setShowDescriptions(false)} disabled={submitting}>Back</button>
+              <button className="submit-button" onClick={handleSubmit} disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>

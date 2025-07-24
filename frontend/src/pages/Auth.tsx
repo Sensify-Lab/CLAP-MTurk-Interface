@@ -10,7 +10,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!userId) {
+    if (!userId.trim()) {
       setMessage('Please enter your Worker ID.');
       return;
     }
@@ -18,14 +18,17 @@ const Auth = () => {
     setLoading(true);
     try {
       const form = new FormData();
-      form.append('user_id', userId);
+      form.append('user_id', userId.trim());
 
       await axios.post(`${BACKEND_URL}/login`, form);
-
-      localStorage.setItem('userId', userId);
-      window.location.href = '/survey';
+      localStorage.setItem('userId', userId.trim());
+      window.location.href = `/survey?id=${encodeURIComponent(userId.trim())}`;
     } catch (err: any) {
-      setMessage(err.response?.data?.detail || 'Unable to start session.');
+      if (err.response?.status === 403) {
+        window.location.href = '/denied';
+      } else {
+        setMessage(err.response?.data?.detail || 'Unable to start session.');
+      }
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,10 @@ AUDIO_DIR = "static/audio"
 CSV_DIR = "static/CSVs"
 CHATGPT_FILE = os.path.join(CSV_DIR, "chatgpt.csv")
 
+ALLOWED_USER_IDS = {
+    "ADMIN302"
+}
+
 descriptions_cache = {}
 
 app = FastAPI()
@@ -51,6 +55,10 @@ def load_descriptions():
 
 @app.post("/login")
 def login(user_id: str = Form(...), db: Session = Depends(get_db)):
+    # 🔒 Check allowed users
+    if user_id not in ALLOWED_USER_IDS:
+        raise HTTPException(status_code=403, detail="Unauthorized user ID")
+
     user = db.query(SurveyProgress).filter_by(user_id=user_id).first()
     if not user:
         user = SurveyProgress(user_id=user_id, completed_songs="")
@@ -60,6 +68,10 @@ def login(user_id: str = Form(...), db: Session = Depends(get_db)):
 
 @app.get("/next-song")
 def next_song(user_id: str, db: Session = Depends(get_db)):
+    # 🔒 Check allowed users
+    if user_id not in ALLOWED_USER_IDS:
+        raise HTTPException(status_code=403, detail="Unauthorized user ID")
+
     all_songs = get_all_songs()
 
     user = db.query(SurveyProgress).filter_by(user_id=user_id).first()
